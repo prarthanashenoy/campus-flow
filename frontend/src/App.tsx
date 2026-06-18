@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider } from './auth/AuthProvider'
 import { Navbar } from './components/Navbar'
 import { OpportunitiesPage } from './pages/OpportunitiesPage'
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage'
@@ -15,16 +16,18 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Navigate to="/opportunities" replace />} />
-          <Route path="/opportunities" element={<OpportunitiesPage />} />
-          <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Navigate to="/opportunities" replace />} />
+            <Route path="/opportunities" element={<OpportunitiesPage />} />
+            <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </AuthProvider>
   )
 }
 
