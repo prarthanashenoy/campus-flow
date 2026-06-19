@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import { Navbar } from './components/Navbar'
 import { OpportunitiesPage } from './pages/OpportunitiesPage'
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage'
+import { MyRegistrationsPage } from './pages/MyRegistrationsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +25,7 @@ function App() {
             <Route path="/" element={<Navigate to="/opportunities" replace />} />
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
+            <Route path="/my-registrations" element={<MyRegistrationsPage />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

@@ -423,6 +423,34 @@ button {
   background: var(--color-bg);
 }
 
+/* ── Registration section ─────────────────────────────────── */
+.register-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.register-success,
+.register-already {
+  font-size: 0.9rem;
+  color: #276749;
+}
+
+.register-error {
+  font-size: 0.875rem;
+  color: var(--color-error);
+}
+
+.registration-date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 600px) {
   .page {

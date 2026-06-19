@@ -6,6 +6,7 @@ import * as request from 'supertest'
 import { UsersModule } from './users.module'
 import { PrismaModule } from '../prisma/prisma.module'
 import { PassportModule } from '@nestjs/passport'
+import { RegistrationsModule } from '../registrations/registrations.module'
 import { JwtStrategy } from '../auth/jwt.strategy'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
@@ -46,6 +47,7 @@ describe('Auth guard – unauthenticated requests', () => {
         PrismaModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
         UsersModule,
+        RegistrationsModule,
       ],
       providers: [
         TestJwtStrategy,
@@ -59,7 +61,11 @@ describe('Auth guard – unauthenticated requests', () => {
       .overrideProvider(JwtStrategy)
       .useClass(TestJwtStrategy)
       .overrideProvider('PrismaService')
-      .useValue({ user: { upsert: jest.fn(), findUnique: jest.fn() } })
+      .useValue({
+        user: { upsert: jest.fn(), findUnique: jest.fn() },
+        opportunity: { findUnique: jest.fn() },
+        registration: { findUnique: jest.fn(), create: jest.fn(), findMany: jest.fn() },
+      })
       .compile()
 
     app = module.createNestApplication()
@@ -80,5 +86,15 @@ describe('Auth guard – unauthenticated requests', () => {
       .get('/api/me')
       .set('Authorization', 'Bearer not-a-real-token')
       .expect(401)
+  })
+
+  it('POST /api/opportunities/:id/register without a token returns 401', async () => {
+    await request(app.getHttpServer())
+      .post('/api/opportunities/some-id/register')
+      .expect(401)
+  })
+
+  it('GET /api/me/registrations without a token returns 401', async () => {
+    await request(app.getHttpServer()).get('/api/me/registrations').expect(401)
   })
 })

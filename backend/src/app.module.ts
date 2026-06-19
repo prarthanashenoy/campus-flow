@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { OpportunitiesModule } from './opportunities/opportunities.module'
+import { RegistrationsModule } from './registrations/registrations.module'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 
 @Module({
@@ -14,9 +15,9 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard'
     HealthModule,
     UsersModule,
     OpportunitiesModule,
+    RegistrationsModule,
   ],
   providers: [
-    // Apply JWT guard globally; use @Public() to opt out
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
