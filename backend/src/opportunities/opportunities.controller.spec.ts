@@ -3,7 +3,8 @@ import { NotFoundException } from '@nestjs/common'
 import { OpportunitiesController } from './opportunities.controller'
 import { OpportunitiesService } from './opportunities.service'
 import { PrismaService } from '../prisma/prisma.service'
-import { Category, Role } from '@prisma/client'
+import { UsersService } from '../users/users.service'
+import { Category } from '@prisma/client'
 
 const mockOrganizer = {
   id: 'user-1',
@@ -50,24 +51,27 @@ const mockPrismaService = {
   opportunity: {
     findMany: jest.fn(),
     findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   },
+  user: { upsert: jest.fn(), findUnique: jest.fn() },
 }
 
 describe('OpportunitiesController', () => {
   let controller: OpportunitiesController
-  let service: OpportunitiesService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OpportunitiesController],
       providers: [
         OpportunitiesService,
+        UsersService,
         { provide: PrismaService, useValue: mockPrismaService },
       ],
     }).compile()
 
     controller = module.get<OpportunitiesController>(OpportunitiesController)
-    service = module.get<OpportunitiesService>(OpportunitiesService)
   })
 
   afterEach(() => {

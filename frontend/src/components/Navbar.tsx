@@ -30,6 +30,16 @@ export function Navbar() {
             </NavLink>
           </li>
         )}
+        {isAuthenticated && (
+          <li>
+            <NavLink
+              to="/organizer/opportunities"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Organizer
+            </NavLink>
+          </li>
+        )}
       </ul>
 
       <div className="navbar-auth">
