@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
+import { AuthorizationService } from '../authorization/authorization.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 import { Category } from '@prisma/client'
 
@@ -32,6 +33,7 @@ export class OpportunitiesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
+    private readonly authz: AuthorizationService,
   ) {}
 
   findAll() {
@@ -68,7 +70,13 @@ export class OpportunitiesService {
 
   async create(dto: CreateOpportunityDto, jwtPayload: JwtPayload) {
     const user = await this.users.findOrCreate(jwtPayload)
-    return this.prisma.opportunity.create({
+
+    // Oso: check the user has the organizer role (globally)
+    if (this.authz.isEnabled()) {
+      await this.authz.authorize(user.id, 'create', 'Opportunity', 'global')
+    }
+
+    const opportunity = await this.prisma.opportunity.create({
       data: {
         ...dto,
         startDate: new Date(dto.startDate),
@@ -77,6 +85,11 @@ export class OpportunitiesService {
       },
       include: OPPORTUNITY_INCLUDE,
     })
+
+    // Sync ownership fact to Oso Cloud so future checks work
+    await this.authz.grantOpportunityOwner(user.id, opportunity.id)
+
+    return opportunity
   }
 
   async update(
@@ -84,7 +97,15 @@ export class OpportunitiesService {
     dto: UpdateOpportunityDto,
     jwtPayload: JwtPayload,
   ) {
-    await this.assertOwnership(id, jwtPayload)
+    const user = await this.users.findOrCreate(jwtPayload)
+
+    if (this.authz.isEnabled()) {
+      // Oso is the authority: checks ownership fact
+      await this.authz.authorize(user.id, 'update', 'Opportunity', id)
+    } else {
+      // Fallback: DB-level ownership check
+      await this.assertOwnership(id, user.id)
+    }
 
     const { startDate, endDate, ...rest } = dto
 
@@ -102,12 +123,28 @@ export class OpportunitiesService {
   }
 
   async remove(id: string, jwtPayload: JwtPayload) {
-    await this.assertOwnership(id, jwtPayload)
+    const user = await this.users.findOrCreate(jwtPayload)
+
+    if (this.authz.isEnabled()) {
+      await this.authz.authorize(user.id, 'delete', 'Opportunity', id)
+    } else {
+      await this.assertOwnership(id, user.id)
+    }
+
     await this.prisma.opportunity.delete({ where: { id } })
+
+    // Clean up the ownership fact in Oso Cloud
+    await this.authz.revokeOpportunityOwner(user.id, id)
   }
 
   async findRegistrations(id: string, jwtPayload: JwtPayload) {
-    await this.assertOwnership(id, jwtPayload)
+    const user = await this.users.findOrCreate(jwtPayload)
+
+    if (this.authz.isEnabled()) {
+      await this.authz.authorize(user.id, 'read_registrations', 'Opportunity', id)
+    } else {
+      await this.assertOwnership(id, user.id)
+    }
 
     return this.prisma.registration.findMany({
       where: { opportunityId: id },
@@ -121,23 +158,21 @@ export class OpportunitiesService {
   // ── Private helpers ─────────────────────────────────────────
 
   /**
-   * Verify the requesting user owns the opportunity.
-   * Ownership is checked against the database record — the opportunityId
-   * comes from the URL parameter, but the identity comes from the JWT.
-   * An organizer cannot escalate access by guessing another ID.
+   * DB-level ownership fallback used when Oso Cloud is not configured.
+   * Ownership is checked against the database record — the user's identity
+   * comes exclusively from the validated JWT.
    */
-  private async assertOwnership(id: string, jwtPayload: JwtPayload) {
-    const user = await this.users.findOrCreate(jwtPayload)
+  private async assertOwnership(opportunityId: string, userId: string) {
     const opportunity = await this.prisma.opportunity.findUnique({
-      where: { id },
+      where: { id: opportunityId },
       select: { organizerId: true },
     })
 
     if (!opportunity) {
-      throw new NotFoundException(`Opportunity with id ${id} not found`)
+      throw new NotFoundException(`Opportunity with id ${opportunityId} not found`)
     }
 
-    if (opportunity.organizerId !== user.id) {
+    if (opportunity.organizerId !== userId) {
       throw new ForbiddenException(
         'You do not have permission to modify this opportunity',
       )

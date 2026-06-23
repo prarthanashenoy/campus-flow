@@ -7,7 +7,10 @@ import { UsersModule } from './users.module'
 import { PrismaModule } from '../prisma/prisma.module'
 import { PassportModule } from '@nestjs/passport'
 import { RegistrationsModule } from '../registrations/registrations.module'
+import { AuthorizationModule } from '../authorization/authorization.module'
+import { AuthorizationService } from '../authorization/authorization.service'
 import { JwtStrategy } from '../auth/jwt.strategy'
+import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Reflector } from '@nestjs/core'
@@ -46,6 +49,7 @@ describe('Auth guard – unauthenticated requests', () => {
       imports: [
         PrismaModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
+        AuthorizationModule,
         UsersModule,
         RegistrationsModule,
       ],
@@ -60,6 +64,8 @@ describe('Auth guard – unauthenticated requests', () => {
     })
       .overrideProvider(JwtStrategy)
       .useClass(TestJwtStrategy)
+      .overrideProvider(AuthorizationService)
+      .useValue(mockAuthorizationService)
       .overrideProvider('PrismaService')
       .useValue({
         user: { upsert: jest.fn(), findUnique: jest.fn() },

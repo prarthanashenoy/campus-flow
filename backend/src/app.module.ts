@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { HealthModule } from './health/health.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { AuthModule } from './auth/auth.module'
+import { AuthorizationModule } from './authorization/authorization.module'
 import { UsersModule } from './users/users.module'
 import { OpportunitiesModule } from './opportunities/opportunities.module'
 import { RegistrationsModule } from './registrations/registrations.module'
@@ -12,6 +13,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard'
   imports: [
     PrismaModule,
     AuthModule,
+    AuthorizationModule,
     HealthModule,
     UsersModule,
     OpportunitiesModule,

@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { UsersController } from './users.controller'
 import { UsersService } from './users.service'
 import { PrismaService } from '../prisma/prisma.service'
+import { AuthorizationService } from '../authorization/authorization.service'
+import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 import { Role } from '@prisma/client'
 
@@ -31,6 +33,7 @@ describe('UsersController – GET /me', () => {
       providers: [
         UsersService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: AuthorizationService, useValue: mockAuthorizationService },
       ],
     }).compile()
 

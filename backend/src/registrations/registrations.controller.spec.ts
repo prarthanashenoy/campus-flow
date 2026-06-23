@@ -4,6 +4,8 @@ import { RegistrationsController } from './registrations.controller'
 import { RegistrationsService } from './registrations.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
+import { AuthorizationService } from '../authorization/authorization.service'
+import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
 import { Category, Role } from '@prisma/client'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 
@@ -73,6 +75,7 @@ describe('RegistrationsController', () => {
         RegistrationsService,
         UsersService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: AuthorizationService, useValue: mockAuthorizationService },
       ],
     }).compile()
 

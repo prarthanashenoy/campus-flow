@@ -4,6 +4,8 @@ import { OpportunitiesController } from './opportunities.controller'
 import { OpportunitiesService } from './opportunities.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
+import { AuthorizationService } from '../authorization/authorization.service'
+import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
 import { Category } from '@prisma/client'
 
 const mockOrganizer = {
@@ -68,6 +70,7 @@ describe('OpportunitiesController', () => {
         OpportunitiesService,
         UsersService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: AuthorizationService, useValue: mockAuthorizationService },
       ],
     }).compile()
 

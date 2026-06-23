@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
+import { AuthorizationService } from '../authorization/authorization.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 
 @Injectable()
@@ -12,10 +13,10 @@ export class RegistrationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
+    private readonly authz: AuthorizationService,
   ) {}
 
   async register(opportunityId: string, jwtPayload: JwtPayload) {
-    // Resolve the user from the validated token — never from request body
     const user = await this.users.findOrCreate(jwtPayload)
 
     // Verify the opportunity exists and is published
@@ -26,6 +27,17 @@ export class RegistrationsService {
     if (!opportunity || !opportunity.isPublished) {
       throw new NotFoundException(
         `Opportunity with id ${opportunityId} not found`,
+      )
+    }
+
+    // Oso: check student can register (create a Registration)
+    // The registration ID is pre-determined as userId:opportunityId
+    if (this.authz.isEnabled()) {
+      await this.authz.authorize(
+        user.id,
+        'create',
+        'Registration',
+        `${user.id}:${opportunityId}`,
       )
     }
 
@@ -42,7 +54,7 @@ export class RegistrationsService {
       )
     }
 
-    return this.prisma.registration.create({
+    const registration = await this.prisma.registration.create({
       data: { userId: user.id, opportunityId },
       include: {
         opportunity: {
@@ -57,6 +69,16 @@ export class RegistrationsService {
         },
       },
     })
+
+    // Grant the user ownership of their own registration fact in Oso
+    await this.authz.grantRole(
+      user.id,
+      'owner',
+      'Registration',
+      registration.id,
+    )
+
+    return registration
   }
 
   async findMyRegistrations(jwtPayload: JwtPayload) {
