@@ -9,11 +9,11 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common'
+import { OpportunitiesService } from './opportunities.service'
 import {
-  OpportunitiesService,
   CreateOpportunityDto,
   UpdateOpportunityDto,
-} from './opportunities.service'
+} from './dto/create-opportunity.dto'
 import { Public } from '../auth/public.decorator'
 import { CurrentUser } from '../auth/current-user.decorator'
 import type { JwtPayload } from '../auth/jwt-payload.interface'

@@ -7,21 +7,9 @@ import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
 import { AuthorizationService } from '../authorization/authorization.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
-import { Category } from '@prisma/client'
+import { CreateOpportunityDto, UpdateOpportunityDto } from './dto/create-opportunity.dto'
 
-export interface CreateOpportunityDto {
-  title: string
-  description: string
-  category: Category
-  location: string
-  startDate: string
-  endDate?: string | null
-  capacity?: number | null
-}
-
-export type UpdateOpportunityDto = Partial<CreateOpportunityDto> & {
-  isPublished?: boolean
-}
+export { CreateOpportunityDto, UpdateOpportunityDto }
 
 const OPPORTUNITY_INCLUDE = {
   organizer: { select: { id: true, name: true, email: true } },
