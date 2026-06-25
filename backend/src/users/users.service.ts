@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthorizationService } from '../authorization/authorization.service'
+import { AppLogger } from '../logger/app-logger.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 import { Role } from '@prisma/client'
 
@@ -9,6 +10,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authz: AuthorizationService,
+    private readonly logger: AppLogger,
   ) {}
 
   /**
@@ -33,6 +35,8 @@ export class UsersService {
     // Sync role to Oso Cloud on every login so new users and role changes
     // are reflected immediately. No-ops when Oso Cloud is not configured.
     await this.authz.syncUserRole(user.id, user.role)
+
+    this.logger.info('user.login', { userId: user.id, role: user.role })
 
     return user
   }

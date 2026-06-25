@@ -3,7 +3,9 @@ import { UsersController } from './users.controller'
 import { UsersService } from './users.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthorizationService } from '../authorization/authorization.service'
+import { AppLogger } from '../logger/app-logger.service'
 import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
+import { mockAppLogger } from '../../test/mocks/logger.mock'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 import { Role } from '@prisma/client'
 
@@ -34,6 +36,7 @@ describe('UsersController – GET /me', () => {
         UsersService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: AuthorizationService, useValue: mockAuthorizationService },
+        { provide: AppLogger, useValue: mockAppLogger },
       ],
     }).compile()
 

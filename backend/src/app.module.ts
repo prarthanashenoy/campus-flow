@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
 import { HealthModule } from './health/health.module'
@@ -8,6 +8,8 @@ import { AuthorizationModule } from './authorization/authorization.module'
 import { UsersModule } from './users/users.module'
 import { OpportunitiesModule } from './opportunities/opportunities.module'
 import { RegistrationsModule } from './registrations/registrations.module'
+import { LoggerModule } from './logger/logger.module'
+import { HttpLoggerMiddleware } from './logger/http-logger.middleware'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 
 @Module({
@@ -15,15 +17,16 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard'
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 1000,   // 1 second window
-        limit: 10,   // max 10 requests per second per IP
+        ttl: 1000,
+        limit: 10,
       },
       {
         name: 'medium',
-        ttl: 60000,  // 1 minute window
-        limit: 100,  // max 100 requests per minute per IP
+        ttl: 60000,
+        limit: 100,
       },
     ]),
+    LoggerModule,
     PrismaModule,
     AuthModule,
     AuthorizationModule,
@@ -43,4 +46,8 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard'
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*')
+  }
+}

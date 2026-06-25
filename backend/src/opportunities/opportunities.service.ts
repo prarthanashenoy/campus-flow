@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
 import { AuthorizationService } from '../authorization/authorization.service'
+import { AppLogger } from '../logger/app-logger.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 import { CreateOpportunityDto, UpdateOpportunityDto } from './dto/create-opportunity.dto'
 
@@ -22,6 +23,7 @@ export class OpportunitiesService {
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
     private readonly authz: AuthorizationService,
+    private readonly logger: AppLogger,
   ) {}
 
   findAll() {
@@ -77,6 +79,11 @@ export class OpportunitiesService {
     // Sync ownership fact to Oso Cloud so future checks work
     await this.authz.grantOpportunityOwner(user.id, opportunity.id)
 
+    this.logger.info('opportunity.created', {
+      userId: user.id,
+      opportunityId: opportunity.id,
+    })
+
     return opportunity
   }
 
@@ -97,7 +104,7 @@ export class OpportunitiesService {
 
     const { startDate, endDate, ...rest } = dto
 
-    return this.prisma.opportunity.update({
+    const updated = await this.prisma.opportunity.update({
       where: { id },
       data: {
         ...rest,
@@ -108,6 +115,10 @@ export class OpportunitiesService {
       },
       include: OPPORTUNITY_INCLUDE,
     })
+
+    this.logger.info('opportunity.updated', { userId: user.id, opportunityId: id })
+
+    return updated
   }
 
   async remove(id: string, jwtPayload: JwtPayload) {
@@ -123,6 +134,8 @@ export class OpportunitiesService {
 
     // Clean up the ownership fact in Oso Cloud
     await this.authz.revokeOpportunityOwner(user.id, id)
+
+    this.logger.info('opportunity.deleted', { userId: user.id, opportunityId: id })
   }
 
   async findRegistrations(id: string, jwtPayload: JwtPayload) {
