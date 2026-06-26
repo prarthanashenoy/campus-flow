@@ -9,8 +9,10 @@ import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
 import { AuthorizationService } from '../authorization/authorization.service'
 import { AppLogger } from '../logger/app-logger.service'
+import { MetricsService } from '../metrics/metrics.service'
 import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
 import { mockAppLogger } from '../../test/mocks/logger.mock'
+import { mockMetricsService } from '../../test/mocks/metrics.mock'
 import { Category, Role } from '@prisma/client'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 
@@ -78,6 +80,7 @@ describe('OpportunitiesController – organizer operations', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: AuthorizationService, useValue: mockAuthorizationService },
         { provide: AppLogger, useValue: mockAppLogger },
+        { provide: MetricsService, useValue: mockMetricsService },
       ],
     }).compile()
 

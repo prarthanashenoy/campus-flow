@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
 import { AuthorizationService } from '../authorization/authorization.service'
 import { AppLogger } from '../logger/app-logger.service'
+import { MetricsService } from '../metrics/metrics.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 
 @Injectable()
@@ -16,6 +17,7 @@ export class RegistrationsService {
     private readonly users: UsersService,
     private readonly authz: AuthorizationService,
     private readonly logger: AppLogger,
+    private readonly metrics: MetricsService,
   ) {}
 
   async register(opportunityId: string, jwtPayload: JwtPayload) {
@@ -85,6 +87,7 @@ export class RegistrationsService {
       opportunityId,
       registrationId: registration.id,
     })
+    this.metrics.incrementRegistrationsCreated()
 
     return registration
   }

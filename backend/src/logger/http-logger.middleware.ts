@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { AppLogger } from './app-logger.service'
+import { MetricsService } from '../metrics/metrics.service'
 
 // Augment Express Request so TypeScript knows about our custom fields
 declare global {
@@ -15,7 +16,10 @@ declare global {
 
 @Injectable()
 export class HttpLoggerMiddleware implements NestMiddleware {
-  constructor(private readonly logger: AppLogger) {}
+  constructor(
+    private readonly logger: AppLogger,
+    private readonly metrics: MetricsService,
+  ) {}
 
   use(req: Request, res: Response, next: NextFunction) {
     req.correlationId = (req.headers['x-correlation-id'] as string) ?? uuidv4()
@@ -41,6 +45,8 @@ export class HttpLoggerMiddleware implements NestMiddleware {
         statusCode: res.statusCode,
         durationMs,
       })
+
+      this.metrics.recordHttpRequest(req.method, req.path, res.statusCode, durationMs)
     })
 
     next()

@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { UsersService } from '../users/users.service'
 import { AuthorizationService } from '../authorization/authorization.service'
 import { AppLogger } from '../logger/app-logger.service'
+import { MetricsService } from '../metrics/metrics.service'
 import type { JwtPayload } from '../auth/jwt-payload.interface'
 import { CreateOpportunityDto, UpdateOpportunityDto } from './dto/create-opportunity.dto'
 
@@ -24,6 +25,7 @@ export class OpportunitiesService {
     private readonly users: UsersService,
     private readonly authz: AuthorizationService,
     private readonly logger: AppLogger,
+    private readonly metrics: MetricsService,
   ) {}
 
   findAll() {
@@ -83,6 +85,7 @@ export class OpportunitiesService {
       userId: user.id,
       opportunityId: opportunity.id,
     })
+    this.metrics.incrementOpportunitiesCreated()
 
     return opportunity
   }

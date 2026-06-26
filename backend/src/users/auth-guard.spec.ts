@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
+import { INestApplication, Module, Global } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-jwt'
 import * as request from 'supertest'
@@ -11,9 +11,11 @@ import { AuthorizationModule } from '../authorization/authorization.module'
 import { AuthorizationService } from '../authorization/authorization.service'
 import { LoggerModule } from '../logger/logger.module'
 import { AppLogger } from '../logger/app-logger.service'
+import { MetricsService } from '../metrics/metrics.service'
 import { JwtStrategy } from '../auth/jwt.strategy'
 import { mockAuthorizationService } from '../../test/mocks/authorization.mock'
 import { mockAppLogger } from '../../test/mocks/logger.mock'
+import { mockMetricsService } from '../../test/mocks/metrics.mock'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Reflector } from '@nestjs/core'
@@ -40,6 +42,11 @@ class TestJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 }
 
+/** Lightweight global mock for MetricsService — avoids importing PrometheusModule */
+@Global()
+@Module({ providers: [{ provide: MetricsService, useValue: mockMetricsService }], exports: [MetricsService] })
+class MockMetricsModule {}
+
 /**
  * Integration tests verifying that unauthenticated requests to protected
  * endpoints are rejected with 401, not 500.
@@ -54,6 +61,7 @@ describe('Auth guard – unauthenticated requests', () => {
         PassportModule.register({ defaultStrategy: 'jwt' }),
         AuthorizationModule,
         LoggerModule,
+        MockMetricsModule,
         UsersModule,
         RegistrationsModule,
       ],

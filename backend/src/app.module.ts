@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module'
 import { OpportunitiesModule } from './opportunities/opportunities.module'
 import { RegistrationsModule } from './registrations/registrations.module'
 import { LoggerModule } from './logger/logger.module'
+import { MetricsModule } from './metrics/metrics.module'
 import { HttpLoggerMiddleware } from './logger/http-logger.middleware'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 
@@ -27,6 +28,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard'
       },
     ]),
     LoggerModule,
+    MetricsModule,
     PrismaModule,
     AuthModule,
     AuthorizationModule,
