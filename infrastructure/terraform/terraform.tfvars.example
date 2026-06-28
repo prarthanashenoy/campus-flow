@@ -1,0 +1,32 @@
+# Copy to terraform.tfvars and fill in values before running terraform apply.
+# NEVER commit terraform.tfvars — it contains secrets.
+
+aws_region  = "eu-central-1"
+environment = "prod"
+app_name    = "campusflow"
+
+# Networking
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["eu-central-1a", "eu-central-1b"]
+
+# Backend image — built and pushed by CI/CD
+backend_image         = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/campusflow-prod-backend:latest"
+backend_cpu           = 256
+backend_memory        = 512
+backend_desired_count = 2
+
+# Database
+db_instance_class = "db.t4g.micro"
+db_name           = "campusflow"
+db_username       = "campusflow"
+
+# Auth0
+auth0_domain   = "your-tenant.auth0.com"
+auth0_audience = "https://your-api-identifier"
+
+# Oso Cloud (leave empty to disable)
+oso_cloud_api_key = ""
+
+# Frontend custom domain (optional)
+frontend_domain     = ""        # e.g. "campusflow.example.com"
+acm_certificate_arn = ""        # us-east-1 cert required for CloudFront
