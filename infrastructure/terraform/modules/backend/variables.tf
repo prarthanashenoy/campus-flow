@@ -13,3 +13,4 @@ variable "auth0_domain"             { type = string }
 variable "auth0_audience"           { type = string }
 variable "oso_cloud_api_key"        { type = string; sensitive = true }
 variable "frontend_origin"          { type = string }
+variable "github_repo"              { type = string; default = "" }

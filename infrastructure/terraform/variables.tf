@@ -97,7 +97,13 @@ variable "oso_cloud_api_key" {
   sensitive   = true
 }
 
-# ── Frontend ─────────────────────────────────────────────────────────────────
+# ── GitHub Actions ───────────────────────────────────────────────────────────
+
+variable "github_repo" {
+  description = "GitHub repository in org/repo format — used for OIDC deploy role (e.g. myorg/campusflow)"
+  type        = string
+  default     = ""
+}
 
 variable "frontend_domain" {
   description = "Custom domain for the frontend (optional, e.g. campusflow.example.com)"

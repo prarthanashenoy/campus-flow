@@ -23,3 +23,13 @@ output "cloudfront_distribution_id" {
   description = "CloudFront distribution ID — used to invalidate the cache after a deploy"
   value       = module.frontend.cloudfront_distribution_id
 }
+
+output "github_deploy_role_arn" {
+  description = "ARN of the GitHub Actions OIDC deploy role — set as AWS_DEPLOY_ROLE_ARN secret in GitHub"
+  value       = module.backend.github_deploy_role_arn
+}
+
+output "s3_bucket_name" {
+  description = "S3 bucket name for frontend assets — set as S3_BUCKET secret in GitHub"
+  value       = module.frontend.s3_bucket_name
+}

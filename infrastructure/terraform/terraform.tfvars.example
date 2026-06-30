@@ -27,6 +27,9 @@ auth0_audience = "https://your-api-identifier"
 # Oso Cloud (leave empty to disable)
 oso_cloud_api_key = ""
 
+# GitHub Actions OIDC deploy role (set to your org/repo)
+github_repo = "myorg/campusflow"
+
 # Frontend custom domain (optional)
 frontend_domain     = ""        # e.g. "campusflow.example.com"
 acm_certificate_arn = ""        # us-east-1 cert required for CloudFront

@@ -38,6 +38,7 @@ module "backend" {
   auth0_audience       = var.auth0_audience
   oso_cloud_api_key    = var.oso_cloud_api_key
   frontend_origin      = "https://${module.frontend.cloudfront_domain}"
+  github_repo          = var.github_repo
 }
 
 module "frontend" {

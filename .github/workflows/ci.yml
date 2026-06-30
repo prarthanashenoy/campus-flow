@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Backend ────────────────────────────────────────────────────────────────
+  backend:
+    name: Backend — lint / typecheck / test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: campusflow
+          POSTGRES_PASSWORD: campusflow
+          POSTGRES_DB: campusflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U campusflow -d campusflow"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      DATABASE_URL: postgresql://campusflow:campusflow@localhost:5432/campusflow
+      # Dummy values — tests mock all external services
+      AUTH0_DOMAIN: test.auth0.com
+      AUTH0_AUDIENCE: https://test.auth0.com/api/v2/
+      OSO_CLOUD_API_KEY: ""
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+
+      - name: Lint
+        run: npm run lint -- --max-warnings 0
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test -- --ci --forceExit
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend — lint / typecheck / build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          # Vite replaces these at build time — use placeholder values in CI
+          VITE_API_URL: https://api.campusflow.example.com
+          VITE_AUTH0_DOMAIN: placeholder.auth0.com
+          VITE_AUTH0_CLIENT_ID: ci-placeholder
+          VITE_AUTH0_AUDIENCE: https://placeholder.auth0.com/api/v2/
