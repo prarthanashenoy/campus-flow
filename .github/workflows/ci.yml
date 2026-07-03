@@ -1,10 +1,16 @@
 name: CI
 
+# Disabled — trigger changed to manual-only to avoid consuming free-tier minutes.
+# To re-enable automatic runs, replace the on: block below with:
+#
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   # ── Backend ────────────────────────────────────────────────────────────────

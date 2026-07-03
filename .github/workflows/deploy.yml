@@ -1,8 +1,14 @@
 name: Deploy
 
+# Disabled — trigger changed to manual-only to avoid consuming free-tier minutes.
+# To re-enable automatic deploys, replace the on: block below with:
+#
+# on:
+#   push:
+#     branches: [main]
+
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 # Only one deploy runs at a time; a newer push cancels an in-progress one
 concurrency:

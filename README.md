@@ -8,6 +8,7 @@ Built as a production-grade portfolio project demonstrating modern web engineeri
 
 ## Table of Contents
 
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
@@ -16,6 +17,30 @@ Built as a production-grade portfolio project demonstrating modern web engineeri
 - [Project Structure](#project-structure)
 - [Documentation](#documentation)
 - [Deployment](#deployment)
+
+---
+
+## Screenshots
+
+**Opportunities listing** — browse and filter by category with keyword search
+
+![Opportunities listing](img/Opportunities.png)
+
+**Opportunity detail** — full description, location, dates, and registration button
+
+![Opportunity detail](img/SingleOpprotunity.png)
+
+**My Registrations** — authenticated student view of enrolled opportunities
+
+![My Registrations](img/MyRegistrations.png)
+
+**Organizer dashboard** — create, edit, and delete your own opportunities
+
+![Organizer dashboard](img/Organizer.png)
+
+**Prometheus dashboard** — real-time metrics: request rate, error rate, latency, and business counters
+
+![Prometheus dashboard](img/PrometheusDashboard.png)
 
 ---
 
